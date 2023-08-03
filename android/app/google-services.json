@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "331949986869",
+    "project_id": "musicapp-414a8",
+    "storage_bucket": "musicapp-414a8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331949986869:android:0764375ece5437472a4d7c",
+        "android_client_info": {
+          "package_name": "com.example.sakura_music_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "331949986869-v4pqombo9k4j78gupnodrngo18n37bt9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2RwpPeKT7ez1UZMli0w6UsRz6NqtVzpI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "331949986869-v4pqombo9k4j78gupnodrngo18n37bt9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "331949986869-hvhfhtjrbe7r5s1ssg2dlfasqn256hmi.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.sakuraMusicApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

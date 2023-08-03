@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 
 @RoutePage()
 class DetailPage extends StatelessWidget {
-  const DetailPage({super.key});
+  const DetailPage({required this.id});
+  final String id;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,7 +19,7 @@ class DetailPage extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {},
-          child: const Text('画面を閉じる'),
+          child: Text(id.toString()),
         ),
       ),
     );

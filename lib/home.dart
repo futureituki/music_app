@@ -13,9 +13,21 @@ class HomePage extends StatelessWidget {
         title: const Text(''),
       ),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () => context.navigateTo(const DetailRoute()),
-          child: const Text('詳細'),
+        child: Column(
+          children: [
+            ElevatedButton(
+              onPressed: () => context.navigateTo(DetailRoute(id: 'startover')),
+              child: const Text('Start over!'),
+            ),
+            ElevatedButton(
+              onPressed: () => context.navigateTo(DetailRoute(id: '桜月')),
+              child: const Text('桜月'),
+            ),
+            ElevatedButton(
+              onPressed: () => context.navigateTo(DetailRoute(id: '五月雨よ')),
+              child: const Text('五月雨よ'),
+            ),
+          ],
         ),
       ),
     );

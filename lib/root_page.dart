@@ -25,10 +25,12 @@ class RootPage extends StatelessWidget {
               NavigationDestination(
                 icon: Icon(Icons.home),
                 label: 'ホーム',
+                selectedIcon: Icon(Icons.home, color: Colors.blue),
               ),
               NavigationDestination(
                 icon: Icon(Icons.search),
                 label: '検索',
+                selectedIcon: Icon(Icons.search, color: Colors.blue),
               ),
             ],
             onDestinationSelected: tabsRouter.setActiveIndex,

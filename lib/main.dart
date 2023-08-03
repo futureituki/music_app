@@ -1,11 +1,14 @@
-import 'package:auto_route/auto_route.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:sakura_music_app/app_router.dart';
-import 'package:sakura_music_app/root_page.dart';
-import 'package:sakura_music_app/search.dart';
 import 'bottom_nav_bar.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // この行を追加
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 

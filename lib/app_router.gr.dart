@@ -44,9 +44,10 @@ abstract class $AppRouter extends _i5.RootStackRouter {
       );
     },
     DetailRoute.name: (routeData) {
+      final args = routeData.argsAs<DetailRouteArgs>();
       return _i5.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i4.DetailPage(),
+        child: _i4.DetailPage(id: args.id),
       );
     },
   };
@@ -110,14 +111,29 @@ class RootRoute extends _i5.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i4.DetailPage]
-class DetailRoute extends _i5.PageRouteInfo<void> {
-  const DetailRoute({List<_i5.PageRouteInfo>? children})
-      : super(
+class DetailRoute extends _i5.PageRouteInfo<DetailRouteArgs> {
+  DetailRoute({
+    required String id,
+    List<_i5.PageRouteInfo>? children,
+  }) : super(
           DetailRoute.name,
+          args: DetailRouteArgs(id: id),
           initialChildren: children,
         );
 
   static const String name = 'DetailRoute';
 
-  static const _i5.PageInfo<void> page = _i5.PageInfo<void>(name);
+  static const _i5.PageInfo<DetailRouteArgs> page =
+      _i5.PageInfo<DetailRouteArgs>(name);
+}
+
+class DetailRouteArgs {
+  const DetailRouteArgs({required this.id});
+
+  final String id;
+
+  @override
+  String toString() {
+    return 'DetailRouteArgs{id: $id}';
+  }
 }
