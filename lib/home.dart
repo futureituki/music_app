@@ -16,15 +16,16 @@ class HomePage extends StatelessWidget {
         child: Column(
           children: [
             ElevatedButton(
-              onPressed: () => context.navigateTo(DetailRoute(id: 'startover')),
+              onPressed: () =>
+                  context.navigateTo(DetailRoute(param: 'startover')),
               child: const Text('Start over!'),
             ),
             ElevatedButton(
-              onPressed: () => context.navigateTo(DetailRoute(id: '桜月')),
+              onPressed: () => context.navigateTo(DetailRoute(param: '桜月')),
               child: const Text('桜月'),
             ),
             ElevatedButton(
-              onPressed: () => context.navigateTo(DetailRoute(id: '五月雨よ')),
+              onPressed: () => context.navigateTo(DetailRoute(param: '五月雨よ')),
               child: const Text('五月雨よ'),
             ),
           ],
