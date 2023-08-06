@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:auto_route/auto_route.dart';
@@ -18,13 +19,12 @@ class DetailPage extends StatefulWidget {
 class _DetailPageState extends State<DetailPage> {
   // ListResult data = getStorageData('startover');
   final Future<String> _getMusic = Future<String>.delayed(
-    const Duration(seconds: 3),
+    const Duration(seconds: 4),
     () => 'Data Loaded',
   );
   Image? _img;
   List<String>? _text;
   String? currentText;
-  List<String>? _urls;
   // late AudioPlayer _player;
   AudioPlayer? _player = AudioPlayer();
   ConcatenatingAudioSource? _playlist;
@@ -56,7 +56,10 @@ class _DetailPageState extends State<DetailPage> {
     }
     // 画面に反映
     setState(() {
-      _img = Image.network(imageUrl);
+      _img = Image.network(
+        imageUrl,
+        width: 330,
+      );
     });
     // Method body here
     // print(data.prefixes);
@@ -65,9 +68,11 @@ class _DetailPageState extends State<DetailPage> {
   @override
   void initState() {
     // TODO: implement initState
-    getData();
-    _setupSession('startover/audio');
     super.initState();
+    Future(() async {
+      await getData();
+      await _setupSession('startover/audio');
+    });
   }
 
   Future<String> getItemDownloadUrl(String fullPath) async {
@@ -76,7 +81,6 @@ class _DetailPageState extends State<DetailPage> {
     return imageUrl;
   }
 
-  Future<void> loadUrl() async {}
   Future<void> _setupSession(String strSePath) async {
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.speech());
@@ -93,7 +97,7 @@ class _DetailPageState extends State<DetailPage> {
         // Start loading next item just before reaching it
         useLazyPreparation: true,
         // Customise the shuffle algorithm
-        shuffleOrder: DefaultShuffleOrder(),
+        // shuffleOrder: DefaultShuffleOrder(),
         // Specify the playlist items
         children: [
           for (var element in test)
@@ -104,15 +108,10 @@ class _DetailPageState extends State<DetailPage> {
     await _player!.setAudioSource(_playlist!);
   }
 
-  Future<void> _playSoundFile() async {
-    // 再生終了状態の場合、新たなオーディオファイルを定義し再生できる状態にする
-    _player!.currentIndexStream.listen((index) {
-      currentText = _text![index!];
-    });
-    _isPlaying = true;
-    setState(() {});
-    await _player!.setVolume(1.0); // 音量を指定
-    await _player!.play();
+  @override
+  void dispose() {
+    _player!.dispose();
+    super.dispose();
   }
 
   Future<void> _selectTrack(int index) async {
@@ -121,15 +120,14 @@ class _DetailPageState extends State<DetailPage> {
     });
     setState(() {});
     await _player!.seek(Duration.zero, index: index);
+    await _player!.play();
   }
 
-  Future<void> _stopSoundFile() async {
-    _player!.currentIndexStream.listen((index) {
-      currentText = _text![index!];
-    });
-    _isPlaying = false;
-    setState(() {});
-    await _player!.pause();
+  String formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "${duration.inHours > 0 ? '${twoDigits(duration.inHours)}:' : ''}$twoDigitMinutes:$twoDigitSeconds";
   }
 
   @override
@@ -150,48 +148,145 @@ class _DetailPageState extends State<DetailPage> {
           if (_img != null && _text != null) {
             // 値が存在する場合の処理5
             children = <Widget>[
+              SizedBox(
+                height: 50,
+              ),
+              Text(widget.param,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 30,
+                  )),
+              SizedBox(
+                height: 50,
+              ),
               _img!,
-              currentText == null ? Text(_text![0]) : Text(currentText!),
               Center(
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  child: Column(children: [
+                SizedBox(
+                  height: 50,
+                ),
+                StreamBuilder<int?>(
+                  stream: _player!.currentIndexStream,
+                  builder: (context, snapshot) {
+                    final index = snapshot.data;
+                    final currentTrackName = index != null
+                        ? _text![index]
+                        : "読み込み中です"; // Default text if index is null
+                    return Text(
+                      currentTrackName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 20,
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                StreamBuilder<Duration>(
+                  stream: _player!.positionStream,
+                  builder: (context, snapshot) {
+                    final position = snapshot.data ?? Duration.zero;
+                    final duration = _player!.duration ?? Duration.zero;
+                    if (position.inMilliseconds == 0 ||
+                        duration.inMilliseconds == 0) {
+                      // positionやdurationがnullの場合はローディング中として表示
+                      return const SizedBox.shrink();
+                    }
+                    final progress =
+                        position.inMilliseconds / duration.inMilliseconds;
+                    return Column(
                       children: [
-                    Text(widget.param),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                            icon: const Icon(Icons.skip_previous),
-                            onPressed: () async {
-                              await _player!.seekToPrevious();
-                              _playSoundFile();
-                            }),
-                        IconButton(
-                          icon: _isPlaying
-                              ? const Icon(Icons.play_arrow)
-                              : const Icon(Icons.pause_circle_filled),
-                          onPressed: () async {
-                            if (_isPlaying) {
-                              await _stopSoundFile();
-                            } else {
-                              await _playSoundFile();
-                            }
+                        Slider(
+                          value: progress,
+                          onChanged: (value) {
+                            final newPosition = value * duration.inMilliseconds;
+                            _player!.seek(
+                                Duration(milliseconds: newPosition.round()));
                           },
                         ),
-                        IconButton(
-                            icon: const Icon(Icons.skip_next),
-                            onPressed: () async {
-                              if (_isPlaying == false) {
-                                setState(() {
-                                  _isPlaying = true;
-                                });
-                              }
-                              await _player!.seekToNext();
-                              _playSoundFile();
-                            })
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '${formatDuration(position)}', // 進んでいる秒数の表示
+                            ),
+                            Text(
+                              '${formatDuration(duration)}', // 合計秒数の表示
+                            ),
+                          ],
+                        ),
                       ],
+                    );
+                  },
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                        icon: const Icon(Icons.skip_previous),
+                        iconSize: 64.0,
+                        onPressed: () async {
+                          await _player!.seekToPrevious();
+                        }),
+                    StreamBuilder<PlayerState>(
+                      stream: _player!.playerStateStream,
+                      builder: (context, snapshot) {
+                        final playerState = snapshot.data;
+                        final processingState = playerState?.processingState;
+                        final playing = playerState?.playing;
+                        if (processingState == ProcessingState.loading ||
+                            processingState == ProcessingState.buffering) {
+                          return Container(
+                            margin: const EdgeInsets.all(8.0),
+                            width: 64.0,
+                            height: 64.0,
+                            child: const CircularProgressIndicator(),
+                          );
+                        } else if (playing != true) {
+                          return IconButton(
+                            icon: const Icon(Icons.play_arrow),
+                            iconSize: 64.0,
+                            onPressed: _player!.play,
+                          );
+                        } else if (processingState !=
+                            ProcessingState.completed) {
+                          return IconButton(
+                            icon: const Icon(Icons.pause),
+                            iconSize: 64.0,
+                            onPressed: _player!.pause,
+                          );
+                        } else {
+                          return IconButton(
+                            icon: const Icon(Icons.replay),
+                            iconSize: 64.0,
+                            onPressed: () => _player!.seek(Duration.zero),
+                          );
+                        }
+                      },
                     ),
-                    Column(
+                    IconButton(
+                        icon: const Icon(Icons.skip_next),
+                        iconSize: 64.0,
+                        onPressed: () async {
+                          if (_isPlaying == false) {
+                            setState(() {
+                              _isPlaying = true;
+                            });
+                          }
+                          await _player!.seekToNext();
+                        })
+                  ],
+                ),
+                SizedBox(
+                  height: 50,
+                ),
+                StreamBuilder<int?>(
+                  stream: _player!.currentIndexStream,
+                  builder: (context, snapshot) {
+                    final index = snapshot.data;
+                    return Column(
                       children: _text!
                           .map(
                             (String e) => ListTile(
@@ -202,14 +297,22 @@ class _DetailPageState extends State<DetailPage> {
                                   fontSize: 21,
                                 ),
                               ),
+                              tileColor: index == _text!.indexOf(e)
+                                  ? Colors.blue
+                                  : const Color.fromARGB(255, 141, 141, 141),
                               onTap: () => {
-                                _selectTrack(_text!.indexOf(e)),
+                                if (index != null)
+                                  {
+                                    _selectTrack(_text!.indexOf(e)),
+                                  }
                               },
                             ),
                           )
                           .toList(), // Iterable<Widget>をList<Widget>に変換
-                    )
-                  ]))
+                    );
+                  },
+                ),
+              ]))
             ];
           } else if (snapshot.hasError) {
             // エラーが発生した場合の処理
@@ -249,28 +352,4 @@ class _DetailPageState extends State<DetailPage> {
       ),
     );
   }
-  // return Scaffold(
-  //   appBar: AppBar(actions: [
-  //     IconButton(
-  //       onPressed: () {
-  //         context.router.pop();
-  //       },
-  //       icon: const Icon(Icons.close),
-  //     )
-  //   ]),
-  //   body: Center(
-  //     child: Column(
-  //       children: [
-  //         if (_img != null) _img!,
-  //         ElevatedButton(
-  //           onPressed: () {
-  //             getData();
-  //             print('aaa');
-  //           },
-  //           child: Text(widget.param.toString()),
-  //         ),
-  //       ],
-  //     ),
-  //   ),
-  // );
 }

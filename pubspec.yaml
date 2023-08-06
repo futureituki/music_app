@@ -40,6 +40,7 @@ dependencies:
   firebase_storage: ^11.2.5
   just_audio: ^0.9.34
   http: ^1.1.0
+  audio_video_progress_bar: ^1.0.1
 
 dev_dependencies:
   auto_route_generator: ^6.2.0                    
