@@ -101,7 +101,7 @@ class _DetailPageState extends State<DetailPage> {
         // Specify the playlist items
         children: [
           for (var element in test)
-            AudioSource.uri(Uri.parse(element), tag: element),
+            AudioSource.uri(Uri.parse(element), tag: 'test'),
         ],
       );
     });
@@ -194,6 +194,9 @@ class _DetailPageState extends State<DetailPage> {
                       // positionやdurationがnullの場合はローディング中として表示
                       return const SizedBox.shrink();
                     }
+                    if (position == null || duration == null) {
+                      return Text('0:00/0:00');
+                    }
                     final progress =
                         position.inMilliseconds / duration.inMilliseconds;
                     return Column(
@@ -229,6 +232,7 @@ class _DetailPageState extends State<DetailPage> {
                         iconSize: 64.0,
                         onPressed: () async {
                           await _player!.seekToPrevious();
+                          await _player!.play();
                         }),
                     StreamBuilder<PlayerState>(
                       stream: _player!.playerStateStream,
@@ -276,6 +280,7 @@ class _DetailPageState extends State<DetailPage> {
                             });
                           }
                           await _player!.seekToNext();
+                          await _player!.play();
                         })
                   ],
                 ),

@@ -2,7 +2,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:sakura_music_app/app_router.dart';
-import 'bottom_nav_bar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // この行を追加
@@ -32,18 +31,5 @@ class MyApp extends StatelessWidget {
       //   '/search': (context) => const SearchWiget(),
       // },
     );
-  }
-}
-
-class MyWidget extends StatelessWidget {
-  const MyWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Material 3'),
-        ),
-        body: const BottomNavbarApp());
   }
 }
